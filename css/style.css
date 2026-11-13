@@ -1,3 +1,14 @@
+/*
+ * Interfaz con estilo BrowserQuest: marco de piedra (border.png), fuente pixelada GraphicPixel y
+ * botones sobrios con resalte dorado. Arte y fuente © Little Workshop, CC-BY-SA 3.0.
+ */
+@font-face {
+  font-family: "GraphicPixel";
+  src: url("../assets/fonts/graphicpixel-webfont.woff") format("woff"),
+       url("../assets/fonts/graphicpixel-webfont.ttf") format("truetype");
+  font-display: swap;
+}
+
 /* Tamaño lógico de la interfaz: 960x540. JS la escala para encajar en la ventana. */
 * { box-sizing: border-box; }
 
@@ -6,7 +17,7 @@ html, body {
   height: 100%;
   background: #0b0f12;
   color: #f1e9d2;
-  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  font-family: "GraphicPixel", "Segoe UI", Tahoma, Arial, sans-serif;
   overflow: hidden;
 }
 
@@ -29,76 +40,77 @@ body { display: flex; align-items: center; justify-content: center; }
 .screen {
   position: absolute; inset: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at center, rgba(8,12,14,.55) 0%, rgba(8,12,14,.85) 100%);
+  background: radial-gradient(ellipse at center, rgba(8,12,14,.45) 0%, rgba(8,12,14,.82) 100%);
   pointer-events: auto;
 }
 
 #modal { z-index: 30; background: rgba(5,8,10,.8); }
 
+/* Marco de piedra de BrowserQuest: la imagen se corta en 9 trozos (10 px de borde) */
+.panel, #dialogue, #toast {
+  border: 10px solid transparent;
+  border-image: url("../assets/images/bq/border.png") 10 fill / 10px stretch;
+  background: rgba(40,40,40,.95);   /* el centro de border.png es transparente */
+  image-rendering: pixelated;
+}
+
 .panel {
   width: 340px;
   display: flex; flex-direction: column; gap: 10px;
-  padding: 26px 28px 22px;
-  background: rgba(28,22,15,.88);
-  border: 2px solid #b8893c;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0,0,0,.55);
+  padding: 18px 18px 14px;
   text-align: center;
 }
 .panel.wide { width: 480px; }
 
 h1 {
-  margin: 0; font-size: 56px; letter-spacing: 12px; padding-left: 12px;
-  color: #f2c566; text-shadow: 0 3px 0 #6b4a1a, 0 6px 14px rgba(0,0,0,.6);
+  margin: 0; font-size: 76px; letter-spacing: 10px; padding-left: 10px; font-weight: normal;
+  color: #fcda5c; text-shadow: 4px 4px 0 #000;
 }
-h2 { margin: 0 0 6px; font-size: 28px; color: #f2c566; letter-spacing: 2px; }
-.subtitle { margin: 0 0 12px; font-size: 15px; color: #d8c79a; letter-spacing: 2px; text-transform: uppercase; }
-.panel p { margin: 4px 0; font-size: 15px; line-height: 1.4; color: #e8dcc0; }
-.note { font-size: 12px !important; color: #a99c7c !important; min-height: 16px; }
-.version { position: absolute; bottom: 10px; right: 14px; margin: 0; font-size: 12px; color: #8f856b; }
+h2 { margin: 0 0 6px; font-size: 30px; font-weight: normal; color: #fcda5c; letter-spacing: 2px; text-shadow: 2px 2px 0 #000; }
+.subtitle { margin: 0 0 12px; font-size: 15px; color: #d7d7d7; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+.panel p { margin: 4px 0; font-size: 17px; line-height: 1.35; color: #e6e6e6; }
+.panel b { color: #fcda5c; font-weight: normal; }
+.note { font-size: 14px !important; color: #a8a8a8 !important; min-height: 16px; }
+.version { position: absolute; bottom: 10px; right: 14px; margin: 0; font-size: 14px; color: #9a9a9a; }
 
 button {
-  font: inherit; font-size: 17px; font-weight: 600;
-  padding: 10px 14px;
-  color: #f6ecd0;
-  background: linear-gradient(#5a4326, #3d2c17);
-  border: 1px solid #b8893c;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: transform .08s, background .12s;
+  font: inherit; font-size: 20px;
+  padding: 8px 12px;
+  color: #eeeeee;
+  background: #4a4a4a;
+  border: 2px solid #8e8e8e;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 2px #303030, 3px 3px 0 #1d1d1d;
+  cursor: url("../assets/images/bq/hand.png") 4 2, pointer;
+  transition: transform .06s;
 }
 button:hover:not(:disabled), button:focus-visible {
-  background: linear-gradient(#7a5a30, #55401f);
+  color: #fcda5c; background: #5b5b5b; border-color: #fcda5c;
   outline: none; transform: translateY(-1px);
 }
-button:focus-visible { box-shadow: 0 0 0 3px rgba(242,197,102,.55); }
 button:disabled { opacity: .4; cursor: not-allowed; }
-button.danger { border-color: #a5483a; background: linear-gradient(#5b2a22, #3f1c17); }
-button.danger:hover:not(:disabled), button.danger:focus-visible { background: linear-gradient(#7c382d, #55261f); }
+button.danger { border-color: #b24a4a; }
+button.danger:hover:not(:disabled), button.danger:focus-visible { color: #ff8e8e; border-color: #ff8e8e; background: #5b4646; }
 
 /* ---------- Diálogo ---------- */
 #dialogue {
-  position: absolute; left: 80px; right: 80px; bottom: 28px;
+  position: absolute; left: 80px; right: 80px; bottom: 26px;
   min-height: 112px;
-  padding: 14px 20px 22px;
-  background: rgba(22,17,11,.92);
-  border: 2px solid #b8893c; border-radius: 10px;
-  box-shadow: 0 6px 22px rgba(0,0,0,.55);
-  pointer-events: auto; cursor: pointer;
+  padding: 10px 14px 24px;
+  pointer-events: auto; cursor: url("../assets/images/bq/hand.png") 4 2, pointer;
 }
-#dlg-speaker { font-size: 17px; font-weight: 700; color: #f2c566; margin-bottom: 6px; min-height: 0; }
+#dlg-speaker { font-size: 22px; color: #fcda5c; margin-bottom: 6px; text-shadow: 2px 2px 0 #000; }
 #dlg-speaker:empty { display: none; }
-#dlg-text { font-size: 18px; line-height: 1.45; color: #f6ecd0; white-space: pre-wrap; }
-#dlg-text.narration { font-style: italic; color: #d8cba6; }
-#dlg-hint { position: absolute; right: 14px; bottom: 6px; font-size: 11px; color: #9d9072; }
+#dlg-text { font-size: 21px; line-height: 1.4; color: #f0f0f0; white-space: pre-wrap; }
+#dlg-text.narration { color: #c9c9c9; }
+#dlg-hint { position: absolute; right: 12px; bottom: 4px; font-size: 13px; color: #9a9a9a; }
 
 /* ---------- Aviso ---------- */
 #toast {
-  position: absolute; top: 18px; left: 50%;
+  position: absolute; top: 14px; left: 50%;
   transform: translateX(-50%) translateY(-12px);
-  padding: 8px 18px;
-  background: rgba(22,17,11,.92); border: 1px solid #b8893c; border-radius: 20px;
-  font-size: 15px; color: #f6ecd0;
+  padding: 4px 14px;
+  font-size: 19px; color: #fcda5c;
   opacity: 0; transition: opacity .2s, transform .2s;
   z-index: 40;
 }

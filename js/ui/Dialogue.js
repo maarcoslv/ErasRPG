@@ -39,13 +39,14 @@
       if (!this.isOpen) return;
       var full = this.lines[this.index].length;
       if (this.shown < full) { this.shown = full; this._render(); return; }   // primero completa el texto
-      if (this.index < this.lines.length - 1) { this.index++; this.shown = 0; this._render(); }
+      if (this.index < this.lines.length - 1) { this.index++; this.shown = 0; this._render(); RPG.Audio.play('npctalk'); }
       else this.close();
     }
 
     close() {
       if (!this.isOpen) return;
       this.isOpen = false;
+      RPG.Audio.play('npc-end');
       this.box.classList.add('hidden');
       var cb = this.onClose; this.onClose = null;
       if (cb) cb();

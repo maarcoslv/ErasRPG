@@ -34,7 +34,7 @@
         <button data-action="credits">Créditos</button>
         <p class="note" id="main-note"></p>
       </div>
-      <p class="version">v0.1.0 · Prototipo (título provisional)</p>
+      <p class="version">v0.2.0 · Prototipo (título provisional)</p>
     </section>
 
     <!-- Ajustes -->
@@ -44,6 +44,7 @@
         <button data-action="toggle" data-setting="showFps"></button>
         <button data-action="toggle" data-setting="showHelp"></button>
         <button data-action="toggle" data-setting="autosave"></button>
+        <button data-action="toggle" data-setting="sound"></button>
         <button data-action="fullscreen" id="btn-fullscreen"></button>
         <button data-action="deleteSave" class="danger">Borrar partida guardada</button>
         <button data-action="back">Volver</button>
@@ -57,8 +58,8 @@
         <h2>Créditos</h2>
         <p>Diseño y dirección del proyecto: tú.</p>
         <p>Programación del prototipo: Claude (Anthropic).</p>
-        <p>Gráficos: dibujados por código con la API Canvas. Sin recursos externos.</p>
-        <p>Hecho solo con HTML, CSS y JavaScript.</p>
+        <p>Arte (terreno, objetos, personaje, aldeano), sonidos e interfaz: <b>BrowserQuest</b>, © Little Workshop (Franck y Guillaume Lecollinet). Licencia CC-BY-SA 3.0.</p>
+        <p>Herbívoro y código del juego: propios, hechos con HTML, CSS y JavaScript.</p>
         <button data-action="back">Volver</button>
       </div>
     </section>
@@ -93,9 +94,11 @@
 <script src="js/data/dialogues.js"></script>
 <script src="js/data/creatures.js"></script>
 <script src="js/data/valle.js"></script>
+<script src="js/data/atlas.js"></script>
 
 <script src="js/core/Input.js"></script>
 <script src="js/core/Camera.js"></script>
+<script src="js/core/Audio.js"></script>
 
 <script src="js/entities/Entity.js"></script>
 <script src="js/entities/Player.js"></script>
@@ -110,7 +113,9 @@
 <script src="js/systems/InteractionSystem.js"></script>
 <script src="js/systems/SaveSystem.js"></script>
 
+<script src="js/render/Assets.js"></script>
 <script src="js/render/Sprites.js"></script>
+<script src="js/render/TexturePack.js"></script>
 <script src="js/render/Renderer.js"></script>
 
 <script src="js/ui/HUD.js"></script>

@@ -15,6 +15,30 @@
     ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
   }
 
+
+  function font(px) { return px + 'px ' + (RPG.Assets.fontOk ? 'GraphicPixel, ' : '') + '"Segoe UI", Arial, sans-serif'; }
+
+  /** Marco de piedra de BrowserQuest (border.png cortado en 9 trozos de 10 px). Sin imagen: marco simple. */
+  function panel(ctx, x, y, w, h) {
+    var im = RPG.Assets.ok && RPG.Assets.img.border;
+    if (!im) {
+      ctx.fillStyle = 'rgba(12,16,18,.7)'; rrect(ctx, x, y, w, h, 8); ctx.fill();
+      ctx.strokeStyle = 'rgba(184,137,60,.8)'; ctx.lineWidth = 1.5; rrect(ctx, x, y, w, h, 8); ctx.stroke();
+      return;
+    }
+    var b = 10, W = im.width, H = im.height;
+    ctx.fillStyle = 'rgba(40,40,40,.95)'; ctx.fillRect(x + 4, y + 4, w - 8, h - 8);   // el centro de border.png es transparente
+    ctx.drawImage(im, b, b, W - 2 * b, H - 2 * b, x + b, y + b, w - 2 * b, h - 2 * b);
+    ctx.drawImage(im, b, 0, W - 2 * b, b, x + b, y, w - 2 * b, b);
+    ctx.drawImage(im, b, H - b, W - 2 * b, b, x + b, y + h - b, w - 2 * b, b);
+    ctx.drawImage(im, 0, b, b, H - 2 * b, x, y + b, b, h - 2 * b);
+    ctx.drawImage(im, W - b, b, b, H - 2 * b, x + w - b, y + b, b, h - 2 * b);
+    ctx.drawImage(im, 0, 0, b, b, x, y, b, b);
+    ctx.drawImage(im, W - b, 0, b, b, x + w - b, y, b, b);
+    ctx.drawImage(im, 0, H - b, b, b, x, y + h - b, b, b);
+    ctx.drawImage(im, W - b, H - b, b, b, x + w - b, y + h - b, b, b);
+  }
+
   function wrap(ctx, text, maxW) {
     var words = text.split(' '), lines = [], line = '';
     words.forEach(function (w) {
@@ -40,58 +64,58 @@
     }
 
     draw(ctx) {
-      var g = this.game, p = g.player, k = g.renderer.k;
+      var g = this.game, p = g.player, k = g.renderer.k, bq = RPG.Assets.ok;
       ctx.setTransform(k, 0, 0, k, 0, 0);
       ctx.textBaseline = 'alphabetic';
+      ctx.imageSmoothingEnabled = !bq;
 
       /* Nombre y vida */
-      ctx.fillStyle = 'rgba(12,16,18,.62)'; rrect(ctx, 14, 14, 232, 58, 8); ctx.fill();
-      ctx.strokeStyle = 'rgba(184,137,60,.8)'; ctx.lineWidth = 1.5; rrect(ctx, 14, 14, 232, 58, 8); ctx.stroke();
-      ctx.fillStyle = '#f2c566'; ctx.font = 'bold 15px "Segoe UI", Arial, sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText(p.name, 26, 36);
-      var bw = 140, ratio = Math.max(0, Math.min(1, p.hp / p.maxHp));
-      ctx.fillStyle = 'rgba(0,0,0,.55)'; rrect(ctx, 26, 45, bw, 14, 5); ctx.fill();
-      if (ratio > 0) {
-        ctx.fillStyle = ratio > 0.5 ? '#4caf50' : (ratio > 0.25 ? '#e0a030' : '#d9433a');
-        rrect(ctx, 26, 45, Math.max(8, bw * ratio), 14, 5); ctx.fill();
+      panel(ctx, 10, 10, 238, 70);
+      ctx.fillStyle = '#fcda5c'; ctx.font = font(20); ctx.textAlign = 'left';
+      ctx.fillText(p.name, 24, 36);
+      var ratio = Math.max(0, Math.min(1, p.hp / p.maxHp)), sx = 24, sy = 44;
+      if (bq) {
+        ctx.drawImage(RPG.Assets.img.bars, 0, 34, 204, 26, sx, sy, 204, 26);      // corazón + barra de BrowserQuest
+        ctx.fillStyle = '#d83939'; ctx.fillRect(sx + 27, sy + 9, Math.round(171 * ratio), 15);
+        ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.fillRect(sx + 27, sy + 9, Math.round(171 * ratio), 3);
+      } else {
+        ctx.fillStyle = 'rgba(0,0,0,.55)'; rrect(ctx, sx, sy + 6, 180, 14, 5); ctx.fill();
+        ctx.fillStyle = '#d9433a'; rrect(ctx, sx, sy + 6, Math.max(8, 180 * ratio), 14, 5); ctx.fill();
       }
-      ctx.fillStyle = '#f6ecd0'; ctx.font = '12px "Segoe UI", Arial, sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText(Math.round(p.hp) + ' / ' + p.maxHp, 174, 57);
+      ctx.fillStyle = '#fff'; ctx.font = font(15); ctx.textAlign = 'center';
+      ctx.fillText(Math.round(p.hp) + ' / ' + p.maxHp, sx + 116, sy + 21);
 
       /* Zona y objetivo */
-      ctx.font = '13px "Segoe UI", Arial, sans-serif';
-      var lines = wrap(ctx, RPG.getObjective(g.flags), 240);
-      var boxH = 46 + lines.length * 17, bx = C.VIEW_W - 14 - 268;
-      ctx.fillStyle = 'rgba(12,16,18,.62)'; rrect(ctx, bx, 14, 268, boxH, 8); ctx.fill();
-      ctx.strokeStyle = 'rgba(184,137,60,.8)'; rrect(ctx, bx, 14, 268, boxH, 8); ctx.stroke();
-      ctx.textAlign = 'left'; ctx.fillStyle = '#f2c566'; ctx.font = 'bold 13px "Segoe UI", Arial, sans-serif';
-      ctx.fillText(g.world.map.name, bx + 14, 34);
-      ctx.fillStyle = '#e8dcc0'; ctx.font = '13px "Segoe UI", Arial, sans-serif';
-      lines.forEach(function (l, i) { ctx.fillText(l, bx + 14, 54 + i * 17); });
+      ctx.font = font(17);
+      var lines = wrap(ctx, RPG.getObjective(g.flags), 236);
+      var boxH = 52 + lines.length * 20, bx = C.VIEW_W - 10 - 268;
+      panel(ctx, bx, 10, 268, boxH);
+      ctx.textAlign = 'left'; ctx.fillStyle = '#fcda5c'; ctx.font = font(19);
+      ctx.fillText(g.world.map.name, bx + 16, 34);
+      ctx.fillStyle = '#e6e6e6'; ctx.font = font(17);
+      lines.forEach(function (l, i) { ctx.fillText(l, bx + 16, 56 + i * 20); });
 
       /* Indicador de interacción */
       var it = g.interaction.current;
       if (it && g.state === 'playing') {
         var sp = g.renderer.project(it.x, it.y + (it.ref && it.ref.interact ? -(it.ref.interact.dy || 0) : 0));
-        var by = sp.y + it.bubble + Math.sin(g.time * 4) * 2;
-        ctx.fillStyle = '#f6e7b0'; ctx.strokeStyle = '#7a5a20'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(sp.x, by, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#3a2a10'; ctx.font = 'bold 15px "Segoe UI", Arial, sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('E', sp.x, by + 5.5);
+        var by = Math.round(sp.y + it.bubble + Math.sin(g.time * 4) * 2);
+        panel(ctx, Math.round(sp.x) - 15, by - 17, 30, 28);
+        ctx.fillStyle = '#fcda5c'; ctx.font = font(20); ctx.textAlign = 'center';
+        ctx.fillText('E', Math.round(sp.x), by + 4);
 
         var label = '[E]  ' + it.label;
-        ctx.font = 'bold 16px "Segoe UI", Arial, sans-serif';
-        var tw = ctx.measureText(label).width + 36;
-        ctx.fillStyle = 'rgba(12,16,18,.78)'; rrect(ctx, C.VIEW_W / 2 - tw / 2, C.VIEW_H - 62, tw, 34, 17); ctx.fill();
-        ctx.strokeStyle = 'rgba(242,197,102,.9)'; ctx.lineWidth = 1.5; rrect(ctx, C.VIEW_W / 2 - tw / 2, C.VIEW_H - 62, tw, 34, 17); ctx.stroke();
-        ctx.fillStyle = '#f6ecd0'; ctx.fillText(label, C.VIEW_W / 2, C.VIEW_H - 40);
+        ctx.font = font(19);
+        var tw = ctx.measureText(label).width + 40;
+        panel(ctx, Math.round(C.VIEW_W / 2 - tw / 2), C.VIEW_H - 64, Math.round(tw), 38);
+        ctx.fillStyle = '#f0f0f0'; ctx.fillText(label, C.VIEW_W / 2, C.VIEW_H - 39);
       }
 
       /* Ayuda de controles y FPS */
-      ctx.textAlign = 'left'; ctx.font = '12px "Segoe UI", Arial, sans-serif';
+      ctx.textAlign = 'left'; ctx.font = font(15);
       if (g.settings.showHelp) {
-        ctx.fillStyle = 'rgba(246,236,208,.7)';
-        ctx.fillText('WASD / Flechas: mover  ·  E: interactuar  ·  Esc: pausa', 16, C.VIEW_H - 14);
+        ctx.fillStyle = '#000'; ctx.fillText('WASD / Flechas: mover  ·  E: interactuar  ·  Esc: pausa', 17, C.VIEW_H - 13);
+        ctx.fillStyle = '#e6e6e6'; ctx.fillText('WASD / Flechas: mover  ·  E: interactuar  ·  Esc: pausa', 16, C.VIEW_H - 14);
       }
       if (g.settings.showFps) {
         ctx.fillStyle = '#c9f0c9'; ctx.textAlign = 'right';

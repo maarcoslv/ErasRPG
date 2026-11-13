@@ -33,6 +33,7 @@
         if (d.flag && !g.flags[d.flag]) {
           g.flags[d.flag] = true;
           g.hud.toast('Objetivo actualizado');
+          RPG.Audio.play('achievement');
         }
       });
     }

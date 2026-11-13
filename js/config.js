@@ -11,7 +11,7 @@
   RPG.CONFIG = {
     TITLE: 'ERAS',
     SUBTITLE: 'De las bestias a las estrellas',
-    VERSION: '0.1.0',
+    VERSION: '0.2.0',
 
     TILE: 32,                 // tamaño de casilla en píxeles lógicos
     VIEW_W: 960,              // resolución lógica de la pantalla
@@ -31,7 +31,7 @@
       IDB_TIMEOUT_MS: 1500
     },
 
-    DEFAULT_SETTINGS: { showFps: false, showHelp: true, autosave: true }
+    DEFAULT_SETTINGS: { showFps: false, showHelp: true, autosave: true, sound: true }
   };
 
   // Tipos de casilla del terreno

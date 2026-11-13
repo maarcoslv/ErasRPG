@@ -42,7 +42,9 @@
       document.addEventListener('fullscreenchange', function () { self.fit(); });
       document.addEventListener('visibilitychange', function () { if (document.hidden) self.onHidden(); });
 
-      await RPG.SaveSystem.init();
+      RPG.Audio.enabled = this.settings.sound;
+      RPG.Audio.init();
+      await Promise.all([RPG.SaveSystem.init(), RPG.Assets.load()]);   // si las imágenes fallan, el juego usa el dibujo por código
       this.buildWorld();
       this.state = 'menu';
       await this.menu.showMain();
@@ -73,6 +75,7 @@
       this.buildWorld();
       this.flags = {}; this.playTime = 0; this.autosaveTimer = 0;
       this.startPlaying();
+      RPG.Audio.play('revive');
       await this.saveGame(true);
       this.hud.toast('Nueva partida');
     }
@@ -88,6 +91,7 @@
       this.flags = d.flags; this.playTime = d.playTime; this.autosaveTimer = 0;
       this.camera.snapTo(p.x, p.y - 12);
       this.startPlaying();
+      RPG.Audio.play('teleport');
       this.hud.toast('Partida cargada');
     }
 
@@ -105,7 +109,7 @@
 
     async saveGame(silent) {
       var ok = await RPG.SaveSystem.save(this.serialize());
-      if (!silent) this.hud.toast(ok ? 'Partida guardada' : 'No se pudo guardar (almacenamiento bloqueado)');
+      if (!silent) { this.hud.toast(ok ? 'Partida guardada' : 'No se pudo guardar (almacenamiento bloqueado)'); if (ok) RPG.Audio.play('chest'); }
       return ok;
     }
 
@@ -127,6 +131,7 @@
 
     startDialogue(speaker, lines, onClose) {
       this.state = 'dialogue';
+      RPG.Audio.play('npc');
       this.dialogue.open(speaker, lines, onClose);
     }
     endDialogue() { if (this.state === 'dialogue') this.state = 'playing'; }

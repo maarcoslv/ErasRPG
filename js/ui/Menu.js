@@ -9,7 +9,8 @@
   var SETTING_LABELS = {
     showFps: 'Mostrar FPS',
     showHelp: 'Mostrar ayuda de controles',
-    autosave: 'Autoguardado (cada 30 s)'
+    autosave: 'Autoguardado (cada 30 s)',
+    sound: 'Sonido'
   };
 
   class Menu {
@@ -114,6 +115,7 @@
 
     async onAction(action, btn) {
       var g = this.game;
+      if (action !== 'new' && action !== 'continue') RPG.Audio.play('chat');   // clic de menú
       switch (action) {
         case 'new':
           if (await RPG.SaveSystem.hasSave()) {
@@ -128,6 +130,7 @@
         case 'toggle':
           var key = btn.getAttribute('data-setting');
           g.settings[key] = !g.settings[key];
+          if (key === 'sound') { RPG.Audio.enabled = g.settings.sound; RPG.Audio.play('chat'); }
           RPG.SaveSystem.saveSettings(g.settings);
           this.updateSettingsLabels(); break;
         case 'fullscreen':

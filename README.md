@@ -1,10 +1,13 @@
-# ERAS — De las bestias a las estrellas (v0.1.0, prototipo)
+# ERAS — De las bestias a las estrellas (v0.2.0, prototipo)
 
 RPG 2D de un solo jugador para el navegador. Empieza en el **Valle de los Ancestros** (era prehistórica) y está
 preparado para crecer hacia la era industrial y la espacial.
 
 Solo usa HTML5, CSS3, JavaScript y Canvas. **No hay nada que instalar**, ni servidor, ni Internet para jugar.
 *(El título "ERAS" es provisional.)*
+
+**Novedad v0.2.0:** texturas, sonidos e interfaz tomados de [BrowserQuest](https://github.com/mozilla/BrowserQuest) (Mozilla / Little Workshop).
+La lógica del juego y el lore no han cambiado. **Lee el apartado 9 (licencias): hay que mantener la atribución.**
 
 ---
 
@@ -91,18 +94,25 @@ Datos dentro de `.js` (no hay `fetch` ni JSON externos).
 
 ```
 index.html                 único punto de entrada
-css/style.css              menús, diálogo, avisos (interfaz DOM)
+css/style.css              menús, diálogo, avisos (interfaz DOM) con el marco de piedra y la fuente de BrowserQuest
+assets/
+  images/bq/               hojas de BrowserQuest (terreno y objetos, personaje, aldeano, interfaz)
+  audio/bq/                17 efectos de sonido (.ogg y .mp3)
+  fonts/                   fuente pixelada GraphicPixel
+  LICENSE-BrowserQuest.txt licencia del arte y los sonidos (CC-BY-SA 3.0)
 js/
   config.js                constantes (tamaño de casilla, ajustes por defecto, claves de guardado)
   main.js                  arranque + pantalla de error si falta algún archivo
   data/                    DATOS, sin lógica
     valle.js               mapa del Valle (terreno, objetos, NPC, criaturas) — generado con semilla fija
     creatures.js           especies (velocidades, radios de detección…)
+    atlas.js               recortes de la hoja de texturas + pixel art del herbívoro
     dialogues.js           textos y objetivo según el progreso
   core/
     Game.js                bucle y máquina de estados: menu / playing / dialogue / paused
     Input.js               teclado (WASD/flechas/E/Esc)
     Camera.js              cámara con seguimiento suave y límites
+    Audio.js               efectos de sonido (ogg/mp3 según navegador; se puede silenciar en Ajustes)
   entities/
     Entity.js              base: posición en los PIES + caja de colisión
     Player.js · Creature.js · NPC.js
@@ -116,7 +126,9 @@ js/
     SaveSystem.js          IndexedDB + localStorage
   render/
     Renderer.js            terreno con tiles, orden por profundidad, ÚNICO punto de proyección mundo→pantalla
-    Sprites.js             dibujo procedural con Canvas (todo en código)
+    Assets.js              carga de imágenes y fuente (si falla, el juego sigue con el respaldo)
+    Sprites.js             dibujo procedural por código = RESPALDO si faltan las imágenes
+    TexturePack.js         paquete de texturas BrowserQuest: terreno con bordes irregulares, objetos, personajes
   ui/
     HUD.js (canvas) · Dialogue.js (DOM) · Menu.js (DOM)
 ```
@@ -127,16 +139,20 @@ js/
 - Las posiciones son los **pies** de la entidad; la colisión es solo la franja inferior (se pasa "por detrás" de árboles y casas).
 - Añadir una criatura: nueva especie en `data/creatures.js` + ponerla en `valle.js`.
 - Añadir una región: un nuevo `data/<region>.js` que devuelva el mismo formato que `RPG.buildValle()`.
+- Cambiar el aspecto: todo el dibujo con imágenes está en `render/TexturePack.js` + `data/atlas.js`. Si no cargas `TexturePack.js`, vuelve el dibujo por código.
 - Añadir un diálogo: entrada en `data/dialogues.js` + `interact: { dialogue: 'id', label, range }` en el objeto o NPC.
 
 **Consola de depuración:** en el navegador, F12 → Consola → `RPG.game` da acceso al estado del juego.
 
 ---
 
-## 6. Funcionalidades implementadas (v0.1.0)
+## 6. Funcionalidades implementadas (v0.1.0 + v0.2.0)
 
 - Menú principal: Nueva partida, Continuar partida, Ajustes, Créditos (todos funcionan).
-- Ajustes: mostrar FPS, mostrar ayuda de controles, autoguardado, pantalla completa, borrar partida.
+- Ajustes: mostrar FPS, mostrar ayuda de controles, autoguardado, **sonido**, pantalla completa, borrar partida.
+- **v0.2.0 · Aspecto BrowserQuest:** terreno con texturas y bordes irregulares entre hierba/camino/arena/agua, agua animada,
+  árboles (roble y palmera), rocas, cabañas de madera, fogata animada, personaje y aldeano (Tala) animados, interfaz de piedra y barra de vida con corazón, fuente pixelada.
+- **v0.2.0 · Sonido:** efectos al empezar/continuar partida, guardar, hablar con alguien, avanzar y cerrar diálogos, actualizar objetivo y pulsar botones.
 - Personaje controlable (WASD/flechas), movimiento fluido, diagonales normalizadas, 4 direcciones visuales con animación de caminar.
 - Colisiones con árboles, rocas, arbustos, casas, fogata, NPC, agua y límites del mapa.
 - Mapa del Valle de los Ancestros de 64×48 casillas (2048×1536 px): hierba, hierba oscura, caminos, aldea con 4 chozas y fogata,
@@ -158,7 +174,9 @@ js/
 - Misiones como sistema (ahora solo hay un objetivo derivado de banderas).
 - Creación de personaje, clases, experiencia y niveles.
 - Las otras cuatro regiones (Selva Profunda, Costa Perdida, Pantano Antiguo, Cueva del Coloso) y cambio de mapa.
-- Sonido y música (las carpetas `assets/audio` e `images` están vacías a propósito).
+- Música: el repositorio de BrowserQuest que se usó **no incluye archivos de música**, solo efectos. Tampoco hay pasos ni sonidos de criaturas.
+- El arte de BrowserQuest es medieval/moderno (el personaje y Tala llevan ropa de aldeano). Encaja visualmente pero **no es prehistórico**: más adelante conviene recolorearlos o sustituirlos (p. ej. piel y cuero).
+- No hay arte de BrowserQuest para dinosaurios: el herbívoro es pixel art propio (`data/atlas.js`).
 - Las criaturas no guardan su posición (reaparecen en su origen al cargar).
 - Exportar/importar partida a un archivo (útil para los ordenadores del centro).
 - Controles táctiles / mando.
@@ -166,10 +184,27 @@ js/
 
 ## 8. Qué se probó
 
-Pruebas automáticas en **Chrome 153** abriendo `index.html` por `file://` (62 comprobaciones, todas correctas):
+**v0.2.0** (Chromium con Playwright, `index.html` abierto por `file://`): 49 comprobaciones correctas — carga sin errores ni peticiones de red,
+menú/ajustes/créditos, movimiento con teclas reales, colisiones, cámara, los 4 interactuables y sus diálogos, huida y paseo de criaturas, pausa,
+guardar y continuar tras recargar, confirmación al sobrescribir, ajuste de sonido (y que se recuerda), arranque con respaldo cuando se borran las imágenes,
+y revisión visual con capturas. **No he podido oír el audio** (solo comprobar que el navegador lo reproduce). 60 FPS en Chromium sin GPU.
+
+**v0.1.0** (anteriores): pruebas automáticas en **Chrome 153** abriendo `index.html` por `file://` (62 comprobaciones, todas correctas):
 carga sin errores, menús y botones, movimiento con teclas reales, colisiones (árbol, agua, bordes, 20 000 fotogramas de paseo
 aleatorio sin atravesar nada), conectividad del mapa (todo el terreno libre y los puntos clave son alcanzables), cámara,
 interacción y diálogos, criaturas (paseo, huida, no atraviesan obstáculos), pausa, guardar/continuar tras recargar,
 guardado corrupto, posición guardada inválida, confirmación de nueva partida, borrado, autoguardado y ausencia total de peticiones de red externas.
 
-**No probado:** Firefox, Edge, Safari, móviles, ni la publicación real en GitHub Pages.
+**No probado:** Firefox, Edge, Safari, móviles, ni la publicación real en GitHub Pages. Los chequeos de v0.1.0 no se han repetido en v0.2.0 salvo los indicados arriba.
+
+---
+
+## 9. Licencias y créditos (importante)
+
+- **Arte, sonidos e interfaz** (`assets/images/bq`, `assets/audio/bq`, y la fuente de `assets/fonts`) proceden de **BrowserQuest**,
+  © Little Workshop (Franck Lecollinet y Guillaume Lecollinet) para Mozilla. Licencia **CC-BY-SA 3.0**: puedes usarlos y modificarlos, incluso en un juego propio,
+  pero **debes citar la autoría** (ya está en *Créditos* del juego) y **compartir igual** las modificaciones de ese arte/sonido con la misma licencia.
+  Texto completo en `assets/LICENSE-BrowserQuest.txt` (conserva ese archivo y los créditos al publicar).
+- Las imágenes se usan tal cual (recortes de sus hojas); no se han editado los archivos.
+- El código de este proyecto es propio y no incluye código de BrowserQuest (que es MPL 2.0). El herbívoro es dibujo propio.
+- Esto es una explicación práctica, no asesoramiento legal.

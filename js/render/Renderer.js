@@ -101,9 +101,16 @@
       this.camX = Math.round(cam.x * k) / k;
       this.camY = Math.round(cam.y * k) / k;
 
-      this._drawGround(world.map);
+      var pack = RPG.TexturePack && RPG.TexturePack.active() ? RPG.TexturePack : null;
+      if (pack) {
+        pack.drawGround(ctx, world.map, this.camX, this.camY, k, g.time);   // texturas BrowserQuest
+      } else {
+        this._drawGround(world.map);                                        // respaldo procedural
+        ctx.setTransform(k, 0, 0, k, 0, 0);
+        this._drawWaterShimmer(world.map, g.time);
+      }
       ctx.setTransform(k, 0, 0, k, 0, 0);
-      this._drawWaterShimmer(world.map, g.time);
+      ctx.imageSmoothingEnabled = !pack;   // pixel art nítido (sin suavizado)
       this._drawEntities(world, g);
     }
 
